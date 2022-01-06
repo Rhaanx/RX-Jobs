@@ -38,7 +38,7 @@ Citizen.CreateThread(function()
 		if GetDistanceBetweenCoords(coords, v.bossmenu.pos, true) < 2.0 then 
 			if ESX.PlayerData.job and ESX.PlayerData.job.name == k and (ESX.PlayerData.job.grade_name == 'boss' or  ESX.PlayerData.job.grade_name == 'viceboss' ) then
 			 DrawMarker(20, v.bossmenu.pos.x,v.bossmenu.pos.y,v.bossmenu.pos.z, 0.0, 0.0, 0.0, 0.0, 180.0, 0.0, 0.6, 0.6, 0.6, 66, 135, 245, 50, false, true, 2, nil, nil, false)
-			 ESX.ShowHelpNotification("Premi ~INPUT_PICKUP~ per aprire la gestione dell\'attività.") 
+			 ESX.ShowHelpNotification("Press ~INPUT_PICKUP~ to open Boss Menu") 
 				if IsControlJustReleased(1, 51) then
 					TriggerEvent('esx_society:openBossMenu', k, function(data, menu)
 						menu.close()
@@ -47,21 +47,19 @@ Citizen.CreateThread(function()
 			end		
 		end
 	  
-		-- INVENTORY | You need to add related triggers to your inventory
+		-- INVENTORY
 		if GetDistanceBetweenCoords(coords, v.inventario, true) < 2.0 and ESX.PlayerData.job ~= nil and ESX.PlayerData.job.name == k then	
 			if ESX.PlayerData.job.grade >= v.bossmenu.grado then 		
 				DrawMarker(20, v.inventario.x,v.inventario.y,v.inventario.z, 0.0, 0.0, 0.0, 0.0, 180.0, 0.0, 0.6, 0.6, 0.6, 66, 135, 245, 50, false, true, 2, nil, nil, false)
-				ESX.ShowHelpNotification("Premi ~INPUT_PICKUP~ per aprire l\'inventario.")
+				ESX.ShowHelpNotification("Press ~INPUT_PICKUP~ to open the inventory")
 				if IsControlJustReleased(1, 51) then
-					--[[ EXAMPLE
+					if Config.UseInventory == true then
+						if ESX.PlayerData.job ~= nil and ESX.PlayerData.job.name == Config.Jobs.AllowedJobs then
+							TriggerEvent(v.trigger_inventario)
+						end
+					else
 
-					if ESX.PlayerData.job ~= nil and ESX.PlayerData.job.name == 'JOB1' then
-						TriggerEvent('myinventory:openJOB1')
-					elseif ESX.PlayerData.job ~= nil and ESX.PlayerData.job.name == 'JOB2' then
-						TriggerEvent('myinventory:openJOB2')
 					end
-
-					]]
 				end
 			end
 		end
@@ -91,7 +89,7 @@ end
 -- F6 MENU
 function fattura(fazione)
 	local elements = {
-		{label = "Menù fattura", value = 'billing'}
+		{label = "Billing Menu", value = 'billing'}
 		-- YOU CAN ADD SOME OTHER FUNCTIONS
 	}
 
@@ -105,14 +103,20 @@ function fattura(fazione)
 		local val = data.current.value
 				
 		if val == 'billing' then	
-			local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
-			if closestPlayer ~= -1 and closestDistance <= 3.0 then	
-				menu.close()
-				-- Put here the trigger to your Billing Script
+			local amount = tonumber(data.value)
+			if amount == nil then
+				ESX.ShowNotification("Invalid amount")
 			else
-				ESX.ShowNotification('No players nearby')
+				menu.close()
+				local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
+				if closestPlayer == -1 or closestDistance > 3.0 then
+					ESX.ShowNotification("No players nearby")
+				else
+					TriggerServerEvent('esx_billing:sendBill', GetPlayerServerId(closestPlayer), 'society_' .. Config.Jobs.AllowedJobs, "Billing", amount)
+				end
 			end
-	 	end
+		end,
+	end
 		 
 	end, function(data, menu)
 		menu.close()
