@@ -1,5 +1,7 @@
 Config = {}
 
+Config.Locale = 'en'
+
 Config.UseInventory = false; -- true: If your inventory supports secondary inventory. Needs to put the trigger in "trigger_inventario"
                              -- false: You need esx_addoninventory
                              

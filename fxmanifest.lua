@@ -6,12 +6,14 @@ version '1.0.0'
 
 client_scripts{
     'config.lua',
-    'client/main.lua'
+    'client/main.lua',
+    'locales/en.lua'
 }
 
 server_scripts{
     'config.lua',
-    'server/main.lua'
+    'server/main.lua',
+    'locales/en.lua'
 }
 
 dependencies{
